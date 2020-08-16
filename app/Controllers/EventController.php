@@ -1,32 +1,52 @@
 <?php
 namespace App\Controllers;
 
-use App\Event\Event;
-use App\Controllers\Response;
+use App\Event;
 
 class EventController
 {
     private $db;
-    private $eventId;
+    protected $request;
+    protected $response;
     private $event;
-    private $response;
 
-    public function __construct($db)
+    public function __construct($db, Request $request, Response $response)
     {
         $this->db = $db;
+        $this->request = $request;
+        $this->response = $response;
         $this->event = new Event($this->db);
-        $this->response = new Response();
     }
 
     public function getAllEvent() 
     {
         $result = $this->event->findAll();
-        return $this->createJsonResponse($result, 200);
+        return $this->response->createJsonResponse($result, 200);
     }
 
     public function getEvent($id)
     {
         $result = $this->event->find($id);
-        return $this->createJsonResponse($result, 200);
+        return $this->response->createJsonResponse($result, 200);
+    }
+
+    public function addEvent()
+    {
+        $inputs = $this->request->getAll();
+        $result = $this->event->insert($inputs);
+        return $this->response->createJsonResponse(['RESULT' => $result > 0 ? 'OK':'FAILED']);
+    }
+
+    public function editEvent($id)
+    {
+        $inputs = $this->request->getAll();
+        $result = $this->event->update($id, $inputs);
+        return $this->response->createJsonResponse(['RESULT' => $result > 0 ? 'OK':'FAILED']);
+    }
+
+    public function deleteEvent($id)
+    {
+        $result = $this->event->delete($id);
+        return $this->response->createJsonResponse(['RESULT' => $result > 0 ? 'OK':'FAILED']);
     }
 }

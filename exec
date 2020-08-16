@@ -1,0 +1,36 @@
+<?php
+define("INTERVAL", 60 );
+
+require __DIR__.'/vendor/autoload.php';
+
+use App\Jobs\ReminderJob;
+use Classes\DB\DatabaseConnector;
+
+$dbConnection = (new DatabaseConnector())->getConnection();
+
+$reminder = new ReminderJob($dbConnection);
+
+function checkForStopFlag() { 
+    return false;
+}
+
+function start($runner) {
+    $active = true;
+    $now = strtotime(date('Y-m-d H:i'));
+    
+    $nextTime   = strtotime('+ '.INTERVAL.' seconds', $now); // Set initial delay
+
+    while($active) {
+        usleep(1000);
+        $now = strtotime(date('Y-m-d H:i'));
+        if ($now >= $nextTime) {
+            $runner->reminder();
+            $nextTime = strtotime('+ '.INTERVAL.' seconds', $now);
+            echo $nextTime, "\n";
+        }         
+
+        $active = !checkForStopFlag();
+    }
+}
+
+start($reminder);

@@ -34,7 +34,7 @@ class User {
             SELECT 
                 user_id, email, username
             FROM
-                users;
+                users
             WHERE user_id = ?;
         ";
 
@@ -42,7 +42,7 @@ class User {
             $statement = $this->db->prepare($statement);
             $statement->execute(array($id));
             $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-            return $result;
+            return $result[0];
         } catch (\PDOException $e) {
             exit($e->getMessage());
         }    

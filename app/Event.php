@@ -42,7 +42,7 @@ class Event {
             $statement = $this->db->prepare($statement);
             $statement->execute(array($id));
             $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-            return $result;
+            return $result[0];
         } catch (\PDOException $e) {
             exit($e->getMessage());
         }    
@@ -75,22 +75,21 @@ class Event {
     {
         $statement = "
             UPDATE events
-            SET 
-                title = :title,
-                start  = :start,
-                end  = :end,
-                reminder  = :reminder
+            SET title = :title,
+                start = :start,
+                end = :end,
+                reminder = :reminder
             WHERE event_id = :id;
         ";
 
         try {
             $statement = $this->db->prepare($statement);
             $statement->execute(array(
-                'event_id' => (int) $id,
                 'title' => $input['title'],
                 'start' => $input['start'],
                 'end'  => $input['end'],
                 'reminder'  => $input['reminder'],
+                'id' => (int) $id
             ));
             return $statement->rowCount();
         } catch (\PDOException $e) {
@@ -112,5 +111,29 @@ class Event {
         } catch (\PDOException $e) {
             exit($e->getMessage());
         }    
+    }
+
+    public function getEventToReminder($interval)
+    {
+        $now = date('Y/m/d H:i');
+        $statement = "
+            SELECT * FROM events 
+            WHERE 
+                reminder = 1
+            HAVING
+                MINUTE(TIMEDIFF(start, :now)) = :interval;
+        ";
+
+        try {
+            $statement = $this->db->prepare($statement);
+            $statement->execute(array(
+                'now' => $now,
+                'interval'  => $interval
+            ));
+            $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+            return $result;
+        } catch (\PDOException $e) {
+            exit($e->getMessage());
+        }  
     }
 }
