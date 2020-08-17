@@ -55,7 +55,6 @@ services:
             - 33063:3306
             
 volumes:
-    portainer_ems:
     event_db_vol:
         external: true
 
