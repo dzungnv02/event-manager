@@ -1,0 +1,82 @@
+<?php
+require __DIR__.'/vendor/autoload.php';
+
+define('SQL_FILE', './dbscript/event_manager.sql');
+
+use Classes\DB\DatabaseConnector;
+$db = (new DatabaseConnector())->getConnection();
+
+
+ function import_from_file($script_file, $db)
+{
+    set_time_limit ( 60 ); // Max time = 60 seconds
+
+    // If the connection is acquired
+    if($db != null){
+
+        // Open sql file
+        $f = fopen($script_file, 'r');
+
+        // sql query
+        $query = '';
+
+        // Default delimiter for queries
+        $delimiter = ';';
+
+        // read line by line
+        while (!feof($f))
+        {       
+            $line = str_replace(PHP_EOL, '', fgets($f)); // read a line and remove the end of line character
+
+            /* if the current line contains the key word 'DELIMITER'. Ex: DELIMITER ;; or DELIMITER $$
+             * mostly used for TRIGGERS' queries
+             */
+            if(strpos($line, 'DELIMITER') !== false)
+            {
+                // change the delimiter and read the next line
+                $delimiter = str_replace('DELIMITER ', '', $line);
+                continue;
+            }   
+
+            // Consider the line as part of a query if it's not empty and it's not a comment line
+            if (!empty($line) && !starts_with($line, '/*') && !starts_with($line, '--'))
+            {
+                // the query hasn't reach its end: concatenate $line to $query if $line is not a delimiter
+                $query .= $line !== $delimiter ? $line : '';
+
+                // if the current line ends with $delimiter: end of current query
+                if (ends_with($line, $delimiter))
+                {                
+                    echo $query, "\n";
+                    // exec the query
+                    $statement = $db->prepare($query);
+                    $statement->execute();
+
+                    // start new query
+                    $query = '';
+                }
+            }                    
+        }
+
+        fclose($f);
+    }
+}
+
+ /**
+ * Starts with function
+ */
+function starts_with($haystack, $needle)
+{
+    return $haystack{0} === $needle{0} ? stripos($haystack, $needle) === 0 : false;
+}
+
+/**
+ * Ends with function
+ */
+function ends_with($haystack, $needle)
+{
+    $pos = stripos($haystack, $needle);
+    return $pos === FALSE ? FALSE : substr($haystack, $pos) === $needle;
+}
+
+import_from_file(SQL_FILE, $db);
