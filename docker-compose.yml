@@ -25,6 +25,7 @@ services:
             
     event_manager_nginx:
         container_name: event_manager_nginx
+        hostname: event_manager_nginx
         build: 
             context: ./stacks
             dockerfile: Dockerfile_nginx

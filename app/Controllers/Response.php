@@ -19,11 +19,6 @@ class Response
         'download' => 'application/octet-stream',
     ];
 
-    public function __construct()
-    {
-
-    }
-
     public function createJsonResponse($body, $statusCode = 200)
     {
         return $this->createResponse(json_encode($body), 'json', $statusCode);
@@ -34,7 +29,7 @@ class Response
         return ['body' => $body,
             'headers' => [
                 'Content-Type' => $this->contentType[$contentType],
-                'status_code' => $this->statusCode[$statusCode],
+                'status_code' => $this->statusCodeHeader[$statusCode],
             ],
         ];
     }

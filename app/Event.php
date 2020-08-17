@@ -65,7 +65,8 @@ class Event {
                 'end'  => $input['end'],
                 'reminder'  => $input['reminder'],
             ));
-            return $statement->rowCount();
+            return $this->db->lastInsertId();
+
         } catch (\PDOException $e) {
             exit($e->getMessage());
         }    
@@ -111,6 +112,21 @@ class Event {
         } catch (\PDOException $e) {
             exit($e->getMessage());
         }    
+    }
+
+    public function deleteAll()
+    {
+        $statement = "
+            DELETE FROM events;
+        ";
+
+        try {
+            $statement = $this->db->prepare($statement);
+            $statement->execute();
+            return $statement->rowCount();
+        } catch (\PDOException $e) {
+            exit($e->getMessage());
+        }         
     }
 
     public function getEventToReminder($interval)

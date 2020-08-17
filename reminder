@@ -17,6 +17,7 @@ function checkForStopFlag() {
 function start($runner) {
     $active = true;
     $now = strtotime(date('Y-m-d H:i'));
+    echo 'Start scanning - ',date("Y-m-d H:i:s", $now), "\n";
     
     $nextTime   = strtotime('+ '.INTERVAL.' seconds', $now); // Set initial delay
 
@@ -24,9 +25,10 @@ function start($runner) {
         usleep(1000);
         $now = strtotime(date('Y-m-d H:i'));
         if ($now >= $nextTime) {
-            $runner->reminder();
+            echo 'Time - ',date("Y-m-d H:i:s", $now), "\n";
+            $list = $runner->reminder();
             $nextTime = strtotime('+ '.INTERVAL.' seconds', $now);
-            echo $nextTime, "\n";
+            echo $list;
         }         
 
         $active = !checkForStopFlag();

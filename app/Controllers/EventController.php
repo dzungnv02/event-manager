@@ -21,20 +21,20 @@ class EventController
     public function getAllEvent() 
     {
         $result = $this->event->findAll();
-        return $this->response->createJsonResponse($result, 200);
+        return $this->response->createJsonResponse($result);
     }
 
     public function getEvent($id)
     {
         $result = $this->event->find($id);
-        return $this->response->createJsonResponse($result, 200);
+        return $this->response->createJsonResponse($result);
     }
 
     public function addEvent()
     {
         $inputs = $this->request->getAll();
         $result = $this->event->insert($inputs);
-        return $this->response->createJsonResponse(['RESULT' => $result > 0 ? 'OK':'FAILED']);
+        return $this->response->createJsonResponse(['RESULT' => $result > 0 ? 'OK':'FAILED', 'NEW_ID' => $result], 201);
     }
 
     public function editEvent($id)
@@ -47,6 +47,12 @@ class EventController
     public function deleteEvent($id)
     {
         $result = $this->event->delete($id);
-        return $this->response->createJsonResponse(['RESULT' => $result > 0 ? 'OK':'FAILED']);
+        return $this->response->createJsonResponse(['RESULT' => $result > 0 ? 'OK':'FAILED', 'AFFECTED' => $result]);
+    }
+
+    public function deleteAllEvent()
+    {
+        $result = $this->event->deleteAll();
+        return $this->response->createJsonResponse(['RESULT' => $result > 0 ? 'OK':'FAILED', 'AFFECTED' => $result]);
     }
 }
